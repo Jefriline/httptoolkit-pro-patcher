@@ -1,6 +1,12 @@
 <h1 align="center">HTTP Toolkit Pro Patcher</h1>
 
-This is a simple tool to patch HTTP Toolkit to enable the Pro features without a license or subscription. **But please consider supporting the developer by purchasing a license if you find the HTTP Toolkit useful.**
+<p align="center">
+  <strong>Updated and working on the latest version as of 28/12/2024</strong>
+</p>
+
+This is an updated version of the original HTTP Toolkit Pro Patcher. The original patcher by [XielQ](https://github.com/XielQs) became obsolete due to changes in newer versions of HTTP Toolkit (ES Modules, ASAR integrity checks, etc.). This fork has been completely rewritten to work with HTTP Toolkit v1.24.x and newer versions.
+
+**But please consider supporting the developer by purchasing a license if you find HTTP Toolkit useful.**
 
 ## Important: Pre-requisites
 
