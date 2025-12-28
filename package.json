@@ -1,0 +1,23 @@
+{
+  "name": "httptoolkit-pro-patcher",
+  "version": "1.0.0",
+  "description": "Basic program that patches pro version to HTTP Toolkit",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node . patch"
+  },
+  "author": "XielQ",
+  "license": "MIT",
+  "dependencies": {
+    "@electron/asar": "^3.2.9",
+    "chalk": "4",
+    "prompts": "^2.4.2",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "@types/prompts": "^2.4.9",
+    "@types/yargs": "^17.0.32"
+  }
+}
