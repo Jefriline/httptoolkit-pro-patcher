@@ -1,7 +1,7 @@
 <h1 align="center">HTTP Toolkit Pro Patcher</h1>
 
 <p align="center">
-  <strong>Updated and working on the latest version as of 28/12/2024</strong>
+  <strong>Updated and working on the latest version as of 28/12/2025</strong>
 </p>
 
 This is a simple tool to patch the HTTP Toolkit Pro app to enable the Pro features without a license or subscription. **But please consider supporting the developer by purchasing a license if you find the HTTP Toolkit useful.**
