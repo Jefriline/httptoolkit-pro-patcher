@@ -6,7 +6,7 @@
 
 This is a simple tool to patch the HTTP Toolkit Pro app to enable the Pro features without a license or subscription. **But please consider supporting the developer by purchasing a license if you find the HTTP Toolkit useful.**
 
-This is an updated version of the original HTTP Toolkit Pro Patcher. The original patcher by [XielQ](https://github.com/XielQs) became obsolete due to changes in newer versions of HTTP Toolkit (ES Modules, ASAR integrity checks, etc.). [Jefriline](https://github.com/Jefriline) completely rewrote it to work with HTTP Toolkit v1.24.x, and this fork extends compatibility to **v1.25.0.**.
+This is an updated version of the original HTTP Toolkit Pro Patcher. The original patcher by [XielQ](https://github.com/XielQs) became obsolete due to changes in newer versions of HTTP Toolkit (ES Modules, ASAR integrity checks, etc.). [Jefriline](https://github.com/Jefriline) completely rewrote it to work with HTTP Toolkit **v1.24.x**, and [mcmalte26](https://github.com/mcmalte26) extends compatibility to **v1.25.0**
 
 **But please consider supporting the developer by purchasing a license if you find HTTP Toolkit useful.**
 
@@ -42,7 +42,7 @@ npx --yes @electron/fuses write --app "/opt/HTTP Toolkit/httptoolkit" EnableEmbe
 ### Step 2: Clone and Install
 
 ```bash
-git clone https://github.com/mcmalte26/httptoolkit-pro-patcher
+git clone https://github.com/Jefriline/httptoolkit-pro-patcher
 cd httptoolkit-pro-patcher
 npm install
 ```
@@ -174,7 +174,7 @@ For more detailed information, see the [patch's source code](patch.js) or the [p
 
 | Platform | Status | Version |
 |---|---|---|
-| Windows | Tested & Approved | v1.24.x |
+| Windows | Tested & Approved | v1.25.0 |
 | Linux | Tested & Approved | v1.25.0 |
 | macOS | Supported | — |
 
@@ -240,10 +240,10 @@ This project is for educational purposes only. I do not condone piracy or any il
 - [Titoot](https://github.com/Titoot) for creating the [httptoolkit-interceptor](https://github.com/Titoot/httptoolkit-interceptor)
 - [XielQ](https://github.com/XielQs) for the original creator of this patcher
 - [Jefriline](https://github.com/Jefriline) for rewriting the patcher for HTTP Toolkit v1.24.x
-- This fork extends compatibility to HTTP Toolkit v1.25.0+ with additional subscription method support
+- [mcmalte26](https://github.com/mcmalte26) extends compatibility to HTTP Toolkit v1.25.0+ with additional subscription method support
 
 ## Show Your Support
 
 If you found this project helpful or interesting, please give it a star!
 
-[![Star History Chart](https://api.star-history.com/svg?repos=mcmalte26/httptoolkit-pro-patcher&type=Date)](https://star-history.com/#mcmalte26/httptoolkit-pro-patcher&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=Jefriline/httptoolkit-pro-patcher&type=Date)](https://star-history.com/#Jefriline/httptoolkit-pro-patcher&Date)
