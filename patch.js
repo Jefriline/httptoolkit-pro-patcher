@@ -19,14 +19,14 @@ async function fetchWithGotScraping(url) {
     headerGeneratorOptions: {
       browsers: [
         {
-            name: 'chrome',
-            minVersion: 87,
-            maxVersion: 89
+          name: 'chrome',
+          minVersion: 87,
+          maxVersion: 89
         }
-    ],
-    devices: ['desktop'],
-    locales: ['de-DE', 'en-US'],
-    operatingSystems: ['windows', 'linux'],
+      ],
+      devices: ['desktop'],
+      locales: ['de-DE', 'en-US'],
+      operatingSystems: ['windows', 'linux'],
     }
   })
 };
@@ -41,10 +41,10 @@ const axiosInstance = axios.create({
   httpsAgent:
     globalProxy
       ? new HttpsProxyAgent(
-          globalProxy.startsWith('http')
-            ? globalProxy.replace(/^http:/, 'https:')
-            : 'https://' + globalProxy
-        )
+        globalProxy.startsWith('http')
+          ? globalProxy.replace(/^http:/, 'https:')
+          : 'https://' + globalProxy
+      )
       : undefined //? Use proxy if set (globalProxy is injected by the patcher)
 })
 
@@ -119,7 +119,7 @@ patcherApp.use(async (req, res, next) => {
     const cleanHeaders = { ...reqHeaders }
     delete cleanHeaders['accept-encoding']
     cleanHeaders['Accept-Encoding'] = 'identity' //? Request uncompressed
-    
+
     const remoteFile = await axiosInstance.get(req.url, {
       headers: cleanHeaders,
       responseType: 'arraybuffer',
@@ -164,7 +164,7 @@ patcherApp.use(async (req, res, next) => {
       } else {
         data = String(data)
       }
-      
+
       console.log(`[Patcher] main.js length: ${data.length}, first 100 chars: ${data.substring(0, 100)}`)
 
       if (data === '' || data.length < 1000) {
@@ -201,7 +201,13 @@ patcherApp.use(async (req, res, next) => {
               updateBillingDetailsUrl: 'https://github.com/XielQs/httptoolkit-pro-patcher',
             },
             teamSubscription: null //? Required - can be null for individual users
-          })};user.subscription.expiry=new Date(user.subscription.expiry);` + patched
+          })};
+          user.subscription.expiry = new Date(user.subscription.expiry);
+          user.isPaidUser = () => true;
+          user.userHasSubscription = () => true;
+          user.isPastDueUser = () => false;
+          user.canAccessFeature = () => true;
+          ` + patched
           data = patched
           console.log(`[Patcher] main.js patched`)
         }

@@ -1,6 +1,6 @@
 // @ts-check
 import { spawn } from 'child_process'
-import asar from '@electron/asar'
+import * as asar from '@electron/asar'
 import prompts from 'prompts'
 import yargs from 'yargs'
 import chalk from 'chalk'
@@ -21,7 +21,13 @@ const argv = await yargs(process.argv.slice(2))
     describe: 'Specify the path to the HTTP Toolkit folder (auto-detected by default)',
     type: 'string'
   })
+  .option('custom-mail', {
+    alias: 'c',
+    describe: 'Prompt for a custom email instead of using a random one',
+    type: 'boolean'
+  })
   .command('restore', 'Restore HTTP Toolkit')
+  .command('repatch', 'Restore and repatch HTTP Toolkit')
   .command('start', 'Start HTTP Toolkit with debug logs enabled')
   .demandCommand(1, 'You need at least one command before moving on')
   .alias('h', 'help')
@@ -29,6 +35,7 @@ const argv = await yargs(process.argv.slice(2))
   .parse()
 
 const globalProxy = argv.proxy
+let customEmail = argv['custom-mail']
 
 const isWin = process.platform === 'win32'
 const isMac = process.platform === 'darwin'
@@ -170,8 +177,25 @@ const patchApp = async () => {
   }
   const data = fs.readFileSync(indexPath, 'utf-8')
   ;['SIGINT', 'SIGTERM'].forEach(signal => process.off(signal, () => cleanUp(true)))
-  //? Hardcoded random email - no prompt needed
-  const email = `user${Math.random().toString(36).substring(2, 11)}@httptoolkit-pro.local`
+  //? Get custom email if requested
+  let email
+  if (customEmail !== undefined) {
+    //? Prompt for custom email if flag is set
+    const { email: promptEmail } = await prompts({
+      type: 'text',
+      name: 'email',
+      message: 'Enter an email for the pro plan',
+      validate: value => value.includes('@') || 'Invalid email'
+    })
+    email = promptEmail
+    if (!email) {
+      console.error(chalk.redBright`[-] Email input required`)
+      process.exit(1)
+    }
+  } else {
+    //? Generate random email as default
+    email = `user${Math.random().toString(36).substring(2, 11)}@httptoolkit-pro.local`
+  }
   console.log(chalk.greenBright`[+] Using email: {bold ${email}}`)
   ;['SIGINT', 'SIGTERM'].forEach(signal => process.on(signal, () => cleanUp(true)))
   const patch = fs.readFileSync('patch.js', 'utf-8')
@@ -224,6 +248,26 @@ switch (argv._[0]) {
         console.log(chalk.greenBright`[+] HTTP Toolkit restored`)
       }
       rm(path.join(os.tmpdir(), 'httptoolkit-patch'))
+    } catch (e) {
+      if (!isSudo && e.errno === -13) { //? Permission denied
+        console.error(chalk.redBright`[-] Permission denied, ${permissionErrorText}`)
+        process.exit(1)
+      }
+      console.error(chalk.redBright`[-] An error occurred`, e)
+      process.exit(1)
+    }
+    break
+  case 'repatch':
+    try {
+      console.log(chalk.blueBright`[+] Repatching HTTP Toolkit...`)
+      if (!fs.existsSync(path.join(appPath, 'app.asar.bak'))) {
+        console.error(chalk.redBright`[-] HTTP Toolkit not patched or backup file not found`)
+        process.exit(1)
+      }
+      fs.copyFileSync(path.join(appPath, 'app.asar.bak'), path.join(appPath, 'app.asar'))
+      console.log(chalk.greenBright`[+] HTTP Toolkit restored`)
+      rm(path.join(os.tmpdir(), 'httptoolkit-patch'))
+      await patchApp()
     } catch (e) {
       if (!isSudo && e.errno === -13) { //? Permission denied
         console.error(chalk.redBright`[-] Permission denied, ${permissionErrorText}`)

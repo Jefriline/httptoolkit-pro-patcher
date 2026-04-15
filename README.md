@@ -1,12 +1,12 @@
 <h1 align="center">HTTP Toolkit Pro Patcher</h1>
 
 <p align="center">
-  <strong>Updated and working on the latest version as of 28/12/2025</strong>
+  <strong>Updated and working on the latest version as of 10/04/2026 (1.25.0)</strong>
 </p>
 
 This is a simple tool to patch the HTTP Toolkit Pro app to enable the Pro features without a license or subscription. **But please consider supporting the developer by purchasing a license if you find the HTTP Toolkit useful.**
 
-This is an updated version of the original HTTP Toolkit Pro Patcher. The original patcher by [XielQ](https://github.com/XielQs) became obsolete due to changes in newer versions of HTTP Toolkit (ES Modules, ASAR integrity checks, etc.). This fork has been completely rewritten to work with HTTP Toolkit v1.24.x and newer versions.
+This is an updated version of the original HTTP Toolkit Pro Patcher. The original patcher by [XielQ](https://github.com/XielQs) became obsolete due to changes in newer versions of HTTP Toolkit (ES Modules, ASAR integrity checks, etc.). [Jefriline](https://github.com/Jefriline) completely rewrote it to work with HTTP Toolkit v1.24.x, and this fork extends compatibility to **v1.25.0.**.
 
 **But please consider supporting the developer by purchasing a license if you find HTTP Toolkit useful.**
 
@@ -42,7 +42,7 @@ npx --yes @electron/fuses write --app "/opt/HTTP Toolkit/httptoolkit" EnableEmbe
 ### Step 2: Clone and Install
 
 ```bash
-git clone https://github.com/Jefriline/httptoolkit-pro-patcher.git
+git clone https://github.com/mcmalte26/httptoolkit-pro-patcher
 cd httptoolkit-pro-patcher
 npm install
 ```
@@ -87,15 +87,17 @@ Usage: node . <command> [options]
 
 Commands:
   patch    Patch HTTP Toolkit
+  repatch  Restore and repatch HTTP Toolkit (re-applies the patch)
   restore  Restore HTTP Toolkit to original state
   start    Start HTTP Toolkit with debug logs enabled
 
 Options:
-      --version  Show version number                                   [boolean]
-  -p, --proxy    Specify a global proxy (only http/https supported)     [string]
-  -P, --path     Specify the path to the HTTP Toolkit folder (auto-detected by
-                 default)                                                [string]
-  -h, --help     Show this help message                                [boolean]
+      --version      Show version number                                   [boolean]
+  -p, --proxy        Specify a global proxy (only http/https supported)     [string]
+  -P, --path         Specify the path to the HTTP Toolkit folder (auto-detected by
+                     default)                                                [string]
+  -c, --custom-mail  Prompt for a custom email instead of using a random one           [boolean]
+  -h, --help         Show this help message                                [boolean]
 ```
 
 ## Restoring Original HTTP Toolkit
@@ -105,6 +107,26 @@ If you want to remove the patch and restore HTTP Toolkit to its original state:
 ```bash
 node . restore --path "PATH_TO_HTTP_TOOLKIT"
 ```
+
+## Re-patching HTTP Toolkit
+
+If you need to re-apply the patch, use the `repatch` command. This is a shortcut that restores the original version and then applies the patch again:
+
+```bash
+node . repatch --path "PATH_TO_HTTP_TOOLKIT"
+```
+
+## Using a Custom Email
+
+By default, the patcher generates a random email address. You can prompt for a custom email using the `--custom-mail` option:
+
+```bash
+node . patch --custom-mail
+# or
+node . patch -c
+```
+
+This will prompt you to enter an email address interactively.
 
 ## Using with Proxy
 
@@ -150,11 +172,11 @@ For more detailed information, see the [patch's source code](patch.js) or the [p
 
 ## Compatibility
 
-| Platform | Status | Tested Version |
-|----------|--------|----------------|
-| Windows  | Tested and Approved | v1.24.2 |
-| Linux    | Supported | - |
-| macOS    | Supported | - |
+| Platform | Status | Version |
+|---|---|---|
+| Windows | Tested & Approved | v1.24.x |
+| Linux | Tested & Approved | v1.25.0 |
+| macOS | Supported | — |
 
 ## Troubleshooting
 
@@ -181,7 +203,7 @@ The patcher needs internet access to download HTTP Toolkit's web app files. Make
 ### Permission Errors
 
 - **Windows**: Run PowerShell as Administrator
-- **Linux**: Use `sudo` before the command
+- **Linux**: Run the command as `sudo`
 - **macOS**: Enable "App Management" for your terminal emulator in System Preferences > Privacy & Security
 
 ### Java Attach APIs Error
@@ -204,8 +226,6 @@ Every time you update HTTP Toolkit:
 
 ![Screenshot](https://i.imgur.com/eAmDmZF.png)
 
-Background: [Doki Theme](https://github.com/doki-theme/doki-theme-vscode)
-
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
@@ -219,10 +239,11 @@ This project is for educational purposes only. I do not condone piracy or any il
 - [HTTP Toolkit](https://httptoolkit.com) for the awesome app
 - [Titoot](https://github.com/Titoot) for creating the [httptoolkit-interceptor](https://github.com/Titoot/httptoolkit-interceptor)
 - [XielQ](https://github.com/XielQs) for the original creator of this patcher
-- [Jefriline](https://github.com/Jefriline) for updating and maintaining this patcher for v1.24.2
+- [Jefriline](https://github.com/Jefriline) for rewriting the patcher for HTTP Toolkit v1.24.x
+- This fork extends compatibility to HTTP Toolkit v1.25.0+ with additional subscription method support
 
 ## Show Your Support
 
 If you found this project helpful or interesting, please give it a star!
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Jefriline/httptoolkit-pro-patcher&type=Date)](https://star-history.com/#Jefriline/httptoolkit-pro-patcher&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=mcmalte26/httptoolkit-pro-patcher&type=Date)](https://star-history.com/#mcmalte26/httptoolkit-pro-patcher&Date)
