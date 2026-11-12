@@ -61,15 +61,15 @@ const appPath = getAppPath()
 const isSudo = !isWin && (process.getuid || (() => process.env.SUDO_UID ? 0 : null))() === 0
 
 if (+(process.versions.node.split('.')[0]) < 15) {
-  console.error(chalk.redBright`[!] Node.js version 15 or higher is recommended, you are currently using version {bold ${process.versions.node}}`)
+  console.error(chalk.redBright(`[!] Node.js version 15 or higher is recommended, you are currently using version ${chalk.bold(process.versions.node)}`))
 }
 
 if (!fs.existsSync(path.join(appPath, 'app.asar'))) {
-  console.error(chalk.redBright`[-] HTTP Toolkit not found${!argv.path ? ', try specifying the path with --path' : ''}`)
+  console.error(chalk.redBright(`[-] HTTP Toolkit not found${!argv.path ? ', try specifying the path with --path' : ''}`))
   process.exit(1)
 }
 
-console.log(chalk.blueBright`[+] HTTP Toolkit found at {bold ${appPath.match(/resources$/ig) ? path.dirname(appPath) : appPath}}`)
+console.log(chalk.blueBright(`[+] HTTP Toolkit found at ${chalk.bold(appPath.match(/resources$/ig) ? path.dirname(appPath) : appPath)}`))
 
 const permissionErrorText = isMac && isSudo ? 'please check known issues in the README' : `try running ${!isWin ? 'with sudo' : 'node as administrator'}`
 
@@ -101,13 +101,13 @@ let isCancelled = false
 const cleanUp = async (cancel) => {
   if (cancel) {
     isCancelled = true
-    console.log(chalk.redBright`[-] Operation cancelled, cleaning up...`)
+    console.log(chalk.redBright(`[-] Operation cancelled, cleaning up...`))
   }
   if (activeProcesses.length) {
-    console.log(chalk.yellowBright`[+] Killing active processes...`)
+    console.log(chalk.yellowBright(`[+] Killing active processes...`))
     for (const proc of activeProcesses) {
       proc.kill('SIGINT')
-      console.log(chalk.yellowBright`[+] Process {bold ${proc.pid ? process.pid + ' ' : ''}}killed`)
+      console.log(chalk.yellowBright(`[+] Process ${chalk.bold(proc.pid ? proc.pid + ' ' : '')}killed`))
     }
     await new Promise(resolve => setTimeout(resolve, 1000))
   }
@@ -118,12 +118,12 @@ const cleanUp = async (cancel) => {
   try {
     for (const p of paths) {
       if (fs.existsSync(p)) {
-        console.log(chalk.yellowBright`[+] Removing {bold ${p}}`)
+        console.log(chalk.yellowBright(`[+] Removing ${chalk.bold(p)}`))
         rm(p)
       }
     }
   } catch (e) {
-    console.error(chalk.redBright`[-] An error occurred while cleaning up`, e)
+    console.error(chalk.redBright(`[-] An error occurred while cleaning up`), e)
   }
   if (cancel) process.exit(1)
 }
@@ -133,26 +133,26 @@ const patchApp = async () => {
   const tempPath = path.join(os.tmpdir(), 'httptoolkit-patcher-temp')
 
   if (fs.readFileSync(filePath).includes('Injected by HTTP Toolkit Patcher')) {
-    console.log(chalk.yellowBright`[!] HTTP Toolkit already patched`)
+    console.log(chalk.yellowBright(`[!] HTTP Toolkit already patched`))
     return
   }
 
-  console.log(chalk.blueBright`[+] Started patching app...`)
+  console.log(chalk.blueBright(`[+] Started patching app...`))
 
   if (!canWrite(filePath)) {
-    console.error(chalk.redBright`[-] Insufficient permissions to write to {bold ${filePath}}, ${permissionErrorText}`)
+    console.error(chalk.redBright(`[-] Insufficient permissions to write to ${chalk.bold(filePath)}, ${permissionErrorText}`))
     process.exit(1)
   }
 
   if (globalProxy) {
     if (!globalProxy.match(/^https?:/)) {
-      console.error(chalk.redBright`[-] Global proxy must start with http:// or https://`)
+      console.error(chalk.redBright(`[-] Global proxy must start with http:// or https://`))
       process.exit(1)
     }
-    console.log(chalk.yellowBright`[+] Adding a custom global proxy: {bold ${globalProxy}}`)
+    console.log(chalk.yellowBright(`[+] Adding a custom global proxy: ${chalk.bold(globalProxy)}`))
   }
 
-  console.log(chalk.yellowBright`[+] Extracting app...`)
+  console.log(chalk.yellowBright(`[+] Extracting app...`))
 
   ;['SIGINT', 'SIGTERM'].forEach(signal => process.on(signal, () => cleanUp(true)))
 
@@ -163,16 +163,16 @@ const patchApp = async () => {
     asar.extractAll(filePath, tempPath)
   } catch (e) {
     if (!isSudo && e.errno === -13) { //? Permission denied
-      console.error(chalk.redBright`[-] Permission denied, ${permissionErrorText}`)
+      console.error(chalk.redBright(`[-] Permission denied, ${permissionErrorText}`))
       process.exit(1)
     }
-    console.error(chalk.redBright`[-] An error occurred while extracting app`, e)
+    console.error(chalk.redBright(`[-] An error occurred while extracting app`), e)
     process.exit(1)
   }
 
   const indexPath = path.join(tempPath, 'build', 'index.js')
   if (!fs.existsSync(indexPath)) {
-    console.error(chalk.redBright`[-] Index file not found`)
+    console.error(chalk.redBright(`[-] Index file not found`))
     await cleanUp(true)
   }
   const data = fs.readFileSync(indexPath, 'utf-8')
@@ -189,48 +189,53 @@ const patchApp = async () => {
     })
     email = promptEmail
     if (!email) {
-      console.error(chalk.redBright`[-] Email input required`)
+      console.error(chalk.redBright(`[-] Email input required`))
       process.exit(1)
     }
   } else {
     //? Generate random email as default
     email = `user${Math.random().toString(36).substring(2, 11)}@httptoolkit-pro.local`
   }
-  console.log(chalk.greenBright`[+] Using email: {bold ${email}}`)
+  console.log(chalk.greenBright(`[+] Using email: ${chalk.bold(email)}`))
   ;['SIGINT', 'SIGTERM'].forEach(signal => process.on(signal, () => cleanUp(true)))
   const patch = fs.readFileSync('patch.js', 'utf-8')
   //? No need to clean patch anymore - we use unique variable names (patcherFs, patcherPath, patcherOs, patcherApp)
-  const patchedData = data
-    .replace('const APP_URL =', `// ------- Injected by HTTP Toolkit Patcher -------\nconst email = \`${email.replace(/`/g, '\\`')}\`\nconst globalProxy = process.env.PROXY ?? \`${globalProxy ? globalProxy.replace(/`/g, '\\`') : ''}\`\n${patch}\n// ------- End patched content -------\nconst APP_URL =`)
+  const injection = `// ------- Injected by HTTP Toolkit Patcher -------\nconst email = \`${email.replace(/`/g, '\\`')}\`\nconst globalProxy = process.env.PROXY ?? \`${globalProxy ? globalProxy.replace(/`/g, '\\`') : ''}\`\n${patch}\n// ------- End patched content -------\n`
+  //? Support both old (const) and new (var, esbuild) bundles
+  const patchedData = data.replace(/(const|var|let)\s+APP_URL\s*=/, `${injection}$&`)
 
-  if (data === patchedData || !patchedData) {
-    console.error(chalk.redBright`[-] Patch failed`)
+  if (patchedData === data || !patchedData) {
+    console.error(chalk.redBright(`[-] Patch failed - could not find the APP_URL declaration to inject into`))
     await cleanUp(true)
   }
 
   fs.writeFileSync(indexPath, patchedData, 'utf-8')
-  console.log(chalk.greenBright`[+] Patched index.js`)
-  console.log(chalk.yellowBright`[+] Installing dependencies...`)
+  console.log(chalk.greenBright(`[+] Patched index.js`))
+  console.log(chalk.yellowBright(`[+] Installing dependencies...`))
   try {
     const proc = spawn('npm install express axios got-scraping https-proxy-agent', { cwd: tempPath, stdio: 'inherit', shell: true })
     activeProcesses.push(proc)
-    await new Promise(resolve =>
+    const closeCode = await new Promise(resolve =>
       proc.on('close', resolve)
     )
     activeProcesses.splice(activeProcesses.indexOf(proc), 1)
     if (isCancelled) return
+    if (closeCode !== 0) {
+      console.error(chalk.redBright(`[-] Failed to install dependencies (exit code ${closeCode})`))
+      await cleanUp(true)
+    }
   } catch (e) {
-    console.error(chalk.redBright`[-] An error occurred while installing dependencies`, e)
+    console.error(chalk.redBright(`[-] An error occurred while installing dependencies`), e)
     await cleanUp(true)
   }
   rm(path.join(tempPath, 'package-lock.json'))
   fs.copyFileSync(filePath, `${filePath}.bak`)
-  console.log(chalk.greenBright`[+] Backup created at {bold ${filePath}.bak}`)
-  console.log(chalk.yellowBright`[+] Building app...`)
+  console.log(chalk.greenBright(`[+] Backup created at ${chalk.bold(filePath + '.bak')}`))
+  console.log(chalk.yellowBright(`[+] Building app...`))
   await asar.createPackage(tempPath, filePath)
   rm(tempPath)
-  console.log(chalk.greenBright`[+] HTTP Toolkit patched successfully`)
-  console.log(chalk.greenBright`[+] Restart HTTP Toolkit to apply changes`)
+  console.log(chalk.greenBright(`[+] HTTP Toolkit patched successfully`))
+  console.log(chalk.greenBright(`[+] Restart HTTP Toolkit to apply changes`))
   await cleanUp(false)
 }
 
@@ -240,46 +245,46 @@ switch (argv._[0]) {
     break
   case 'restore':
     try {
-      console.log(chalk.blueBright`[+] Restoring HTTP Toolkit...`)
+      console.log(chalk.blueBright(`[+] Restoring HTTP Toolkit...`))
       if (!fs.existsSync(path.join(appPath, 'app.asar.bak')))
-        console.error(chalk.redBright`[-] HTTP Toolkit not patched or backup file not found`)
+        console.error(chalk.redBright(`[-] HTTP Toolkit not patched or backup file not found`))
       else {
         fs.copyFileSync(path.join(appPath, 'app.asar.bak'), path.join(appPath, 'app.asar'))
-        console.log(chalk.greenBright`[+] HTTP Toolkit restored`)
+        console.log(chalk.greenBright(`[+] HTTP Toolkit restored`))
       }
       rm(path.join(os.tmpdir(), 'httptoolkit-patch'))
     } catch (e) {
       if (!isSudo && e.errno === -13) { //? Permission denied
-        console.error(chalk.redBright`[-] Permission denied, ${permissionErrorText}`)
+        console.error(chalk.redBright(`[-] Permission denied, ${permissionErrorText}`))
         process.exit(1)
       }
-      console.error(chalk.redBright`[-] An error occurred`, e)
+      console.error(chalk.redBright(`[-] An error occurred`), e)
       process.exit(1)
     }
     break
   case 'repatch':
     try {
-      console.log(chalk.blueBright`[+] Repatching HTTP Toolkit...`)
+      console.log(chalk.blueBright(`[+] Repatching HTTP Toolkit...`))
       if (!fs.existsSync(path.join(appPath, 'app.asar.bak'))) {
-        console.error(chalk.redBright`[-] HTTP Toolkit not patched or backup file not found`)
+        console.error(chalk.redBright(`[-] HTTP Toolkit not patched or backup file not found`))
         process.exit(1)
       }
       fs.copyFileSync(path.join(appPath, 'app.asar.bak'), path.join(appPath, 'app.asar'))
-      console.log(chalk.greenBright`[+] HTTP Toolkit restored`)
+      console.log(chalk.greenBright(`[+] HTTP Toolkit restored`))
       rm(path.join(os.tmpdir(), 'httptoolkit-patch'))
       await patchApp()
     } catch (e) {
       if (!isSudo && e.errno === -13) { //? Permission denied
-        console.error(chalk.redBright`[-] Permission denied, ${permissionErrorText}`)
+        console.error(chalk.redBright(`[-] Permission denied, ${permissionErrorText}`))
         process.exit(1)
       }
-      console.error(chalk.redBright`[-] An error occurred`, e)
+      console.error(chalk.redBright(`[-] An error occurred`), e)
       process.exit(1)
     }
     break
   case 'start':
-    console.log(chalk.blueBright`[+] Starting HTTP Toolkit...`)
-    if (isSudo) console.warn(chalk.yellowBright`[!] Warning: Running with sudo may cause issues`)
+    console.log(chalk.blueBright(`[+] Starting HTTP Toolkit...`))
+    if (isSudo) console.warn(chalk.yellowBright(`[!] Warning: Running with sudo may cause issues`))
     try {
       const command =
         isWin ? `"${path.resolve(appPath, '..', 'HTTP Toolkit.exe')}"`
@@ -290,14 +295,14 @@ switch (argv._[0]) {
       const proc = spawn(command, { stdio: 'inherit', shell: true, env })
       proc.on('close', code => process.exit(code))
     } catch (e) {
-      console.error(chalk.redBright`[-] An error occurred`, e)
-      if (isSudo) console.error(chalk.redBright`[-] Try running without sudo`)
+      console.error(chalk.redBright(`[-] An error occurred`), e)
+      if (isSudo) console.error(chalk.redBright(`[-] Try running without sudo`))
       process.exit(1)
     }
     break
   default:
-    console.error(chalk.redBright`[-] Unknown command`)
+    console.error(chalk.redBright(`[-] Unknown command`))
     process.exit(1)
 }
 
-if (!isCancelled) console.log(chalk.greenBright`[+] Done`)
+if (!isCancelled) console.log(chalk.greenBright(`[+] Done`))

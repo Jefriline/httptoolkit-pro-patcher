@@ -1,20 +1,23 @@
 //? Use createRequire to use CommonJS modules in ES module context
-import { createRequire } from 'module'
-const require = createRequire(import.meta.url)
-const { HttpsProxyAgent } = require('https-proxy-agent')
-const axios = require('axios').default
-const electron = require('electron')
-const express = require('express')
+//? All top-level names are prefixed/aliased to avoid collisions with the
+//? HTTP Toolkit bundle, which already declares `require`, `electron` and
+//? `HttpsProxyAgent` at the top level of build/index.js
+import { createRequire as patcherCreateRequire } from 'module'
+const patcherRequire = patcherCreateRequire(import.meta.url)
+const { HttpsProxyAgent: PatcherProxyAgent } = patcherRequire('https-proxy-agent')
+const patcherAxios = patcherRequire('axios').default
+const patcherElectron = patcherRequire('electron')
+const patcherExpress = patcherRequire('express')
 //? Use unique names to avoid conflicts with HTTP Toolkit's variables
-const patcherFs = require('fs')
-const patcherPath = require('path')
-const patcherOs = require('os')
-let gotScraping;
+const patcherFs = patcherRequire('fs')
+const patcherPath = patcherRequire('path')
+const patcherOs = patcherRequire('os')
+let patcherGotScraping;
 
 async function fetchWithGotScraping(url) {
-  gotScraping ??= (await import('got-scraping')).gotScraping;
+  patcherGotScraping ??= (await import('got-scraping')).gotScraping;
 
-  return gotScraping.get({
+  return patcherGotScraping.get({
     url: 'https://app.httptoolkit.tech' + url,
     headerGeneratorOptions: {
       browsers: [
@@ -33,14 +36,14 @@ async function fetchWithGotScraping(url) {
 
 function showPatchError(message) {
   console.error(message)
-  electron.dialog.showErrorBox('Patch Error', message + '\n\nPlease report this issue on the GitHub repository (github.com/XielQs/httptoolkit-pro-patcher)')
+  patcherElectron.dialog.showErrorBox('Patch Error', message + '\n\nPlease report this issue on the GitHub repository (github.com/XielQs/httptoolkit-pro-patcher)')
 }
 
-const axiosInstance = axios.create({
+const axiosInstance = patcherAxios.create({
   baseURL: 'https://app.httptoolkit.tech',
   httpsAgent:
     globalProxy
-      ? new HttpsProxyAgent(
+      ? new PatcherProxyAgent(
         globalProxy.startsWith('http')
           ? globalProxy.replace(/^http:/, 'https:')
           : 'https://' + globalProxy
@@ -56,7 +59,7 @@ const patcherTempPath = patcherPath.join(patcherOs.tmpdir(), 'httptoolkit-patch'
 process.env.APP_URL = `http://localhost:${patcherPort}`
 console.log(`[Patcher] Selected temp path: ${patcherTempPath}`)
 
-const patcherApp = express()
+const patcherApp = patcherExpress()
 
 patcherApp.disable('x-powered-by')
 
@@ -145,7 +148,7 @@ patcherApp.use(async (req, res, next) => {
 
       //? Convert Buffer to string - try to decompress if needed
       if (Buffer.isBuffer(data)) {
-        const zlib = require('zlib')
+        const zlib = patcherRequire('zlib')
         try {
           //? Try to decompress gzip
           data = zlib.gunzipSync(data).toString('utf8')
@@ -229,9 +232,9 @@ patcherApp.use(async (req, res, next) => {
 
 patcherApp.listen(patcherPort, () => console.log(`[Patcher] Server listening on port ${patcherPort}`))
 
-electron.app.on('ready', () => {
+patcherElectron.app.on('ready', () => {
   //? Patching CORS headers to allow requests from localhost
-  electron.session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
+  patcherElectron.session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
     //* Blocking unwanted requests to prevent tracking
     try {
       if (!details || !details.url) return callback({})
@@ -246,7 +249,7 @@ electron.app.on('ready', () => {
       callback({})
     }
   })
-  electron.session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+  patcherElectron.session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     try {
       if (!details || !details.responseHeaders) return callback({})
       details.responseHeaders['Access-Control-Allow-Origin'] = [`http://localhost:${patcherPort}`]
@@ -259,4 +262,4 @@ electron.app.on('ready', () => {
 })
 
 //? Disable caching for all requests
-electron.app.commandLine.appendSwitch('disable-http-cache')
+patcherElectron.app.commandLine.appendSwitch('disable-http-cache')
